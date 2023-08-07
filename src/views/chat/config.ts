@@ -49,7 +49,6 @@ export class HumoChat {
 
       this.MessagePredictLoading.value = true
       const { code, msg, data } = await PredictAPI(this.SendMessageForm)
-      console.log(code, msg, data);
       if (other.humoAPINotification(code, msg)) {
         const lastCustomerMessage = this.MessageHistoryList[this.MessageHistoryList.length - 1];
         lastCustomerMessage.message = data;
