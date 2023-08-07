@@ -5,7 +5,6 @@
 		<Setings ref="setingsRef" v-show="setLockScreen" />
 		<CloseFull v-if="!themeConfig.isLockScreen" />
 		<Upgrade v-if="getVersion" />
-		<Sponsors />
 	</el-config-provider>
 </template>
 
@@ -26,7 +25,6 @@ const LockScreen = defineAsyncComponent(() => import('/@/layout/lockScreen/index
 const Setings = defineAsyncComponent(() => import('/@/layout/navBars/topBar/setings.vue'));
 const CloseFull = defineAsyncComponent(() => import('/@/layout/navBars/topBar/closeFull.vue'));
 const Upgrade = defineAsyncComponent(() => import('/@/layout/upgrade/index.vue'));
-const Sponsors = defineAsyncComponent(() => import('/@/layout/sponsors/index.vue'));
 
 // 定义变量内容
 const setingsRef = ref();
@@ -48,7 +46,8 @@ const getVersion = computed(() => {
 		// @ts-ignore
 		if ((Local.get('version') && Local.get('version') !== __NEXT_VERSION__) || !Local.get('version')) isVersion = true;
 	}
-	return isVersion;
+	// return isVersion;
+	return false
 });
 // 获取全局组件大小
 const getGlobalComponentSize = computed(() => {
@@ -81,7 +80,7 @@ onMounted(() => {
 });
 // 页面销毁时，关闭监听布局配置/i18n监听
 onUnmounted(() => {
-	mittBus.off('openSetingsDrawer', () => {});
+	mittBus.off('openSetingsDrawer', () => { });
 });
 // 监听路由的变化，设置网站标题
 watch(
