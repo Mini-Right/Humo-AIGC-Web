@@ -7,6 +7,7 @@ import { storeToRefs } from 'pinia';
 import { useThemeConfig } from '/@/stores/themeConfig';
 import { Local } from '/@/utils/storage';
 import { verifyUrl } from '/@/utils/toolsValidate';
+import { ElNotification } from 'element-plus';
 
 // 引入组件
 const SvgIcon = defineAsyncComponent(() => import('/@/components/svgIcon/index.vue'));
@@ -166,6 +167,30 @@ export function handleOpenLink(val: RouteItem) {
 }
 
 /**
+ * 接口返回提示
+ * @param code 状态码
+ * @param msg 响应信息
+ * @param is_msg 是否展示msg
+ */
+export function humoAPINotification(code: number, msg: string, is_msg: boolean): boolean {
+	if (!is_msg) return code === 200;
+	if (code === 200) {
+		ElNotification({
+			title: '成功',
+			message: msg,
+			type: 'success',
+		});
+	} else {
+		ElNotification({
+			title: '失败',
+			message: msg,
+			type: 'error',
+		});
+	}
+	return code === 200;
+}
+
+/**
  * 统一批量导出
  * @method elSvg 导出全局注册 element plus svg 图标
  * @method useTitle 设置浏览器标题国际化
@@ -175,6 +200,7 @@ export function handleOpenLink(val: RouteItem) {
  * @method deepClone 对象深克隆
  * @method isMobile 判断是否是移动端
  * @method handleEmpty 判断数组对象中所有属性是否为空，为空则删除当前行对象
+ * @method humoAPINotification 接口msg提示
  */
 const other = {
 	elSvg: (app: App) => {
@@ -204,6 +230,9 @@ const other = {
 	handleOpenLink: (val: RouteItem) => {
 		handleOpenLink(val);
 	},
+	humoAPINotification: (code: number, msg: string, is_msg: boolean = true) => {
+		return humoAPINotification(code, msg, is_msg)
+	}
 };
 
 // 统一批量导出

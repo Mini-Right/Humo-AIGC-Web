@@ -8,9 +8,19 @@ import other from '/@/utils/other';
 import ElementPlus from 'element-plus';
 import '/@/theme/index.scss';
 
+import hl from 'highlight.js';
+import 'highlight.js/styles/night-owl.css';
+
 const app = createApp(App);
 
 directive(app);
 other.elSvg(app);
 
 app.use(pinia).use(router).use(ElementPlus).mount('#app');
+
+app.directive('highlight', (el) => {
+  const blocks = el.querySelectorAll('pre code');
+  blocks.forEach((block: HTMLPreElement) => {
+    hl.highlightBlock(block);
+  });
+});
