@@ -9,7 +9,7 @@ const Chat = inject('Chat') as unknown as HumoChat;
     <el-input v-model="Chat.SendMessageForm.message" ref="inputRef" :autosize="{ minRows: 2, maxRows: 10 }"
       type="textarea" placeholder="说点什么吧" :disabled="Chat.MessagePredictLoading" />
     <el-button class="ml10" type="success" plain :icon="Position" :disabled="Chat.MessagePredictLoading"
-      style="width: 40px; height: 100%" @click="Chat.MessagePredictReply" />
+      style="width: 40px; height: 100%" @click="Chat.Predict" />
   </div>
 </template>
 <style lang="scss" scoped>

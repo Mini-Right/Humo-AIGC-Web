@@ -10,7 +10,8 @@ export interface IMessageItem {
 }
 export interface ISendMessageForm {
   message: string;
-  message_history: IMessageItem[]
+  message_history: IMessageItem[];
+  is_knowledge: boolean
 }
 
 
@@ -25,8 +26,11 @@ export class HumoChat {
   SendMessageForm = reactive<ISendMessageForm>({
     message: '',
     message_history: [],
+    is_knowledge: true,
   })
   MessagePredictLoading = ref(false)
+
+  IsStream = ref(false)
 
   MessageHistoryList = reactive<IMessageItem[]>([])
 
@@ -62,8 +66,73 @@ export class HumoChat {
       lastCustomerMessage.loading = false;
     }
     this.MessagePredictLoading.value = false
+  }
 
 
+  MessagePredictReplyStream = async () => {
+
+    this.SendMessageForm.message_history.splice(0, this.SendMessageForm.message_history.length, ...this.MessageHistoryList)
+
+    this.MessageHistoryList.push({
+      message: this.SendMessageForm.message,
+      role: 'user',
+      loading: false
+    })
+    this.MessageHistoryList.push({
+      message: '',
+      role: 'assistant',
+      loading: true
+    })
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}api/knowledge/predict_stream`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...this.SendMessageForm }),
+      });
+      if (response.body) {
+        // messageInfoPayload.message = '';
+
+        this.handleStream(response);
+        this.SendMessageForm.message = ''
+      }
+    } catch (error) {
+      // ElMessage.error(`Error fetching Chat API: ${error}`);
+    }
+    this.MessagePredictLoading.value = false
+
+  }
+
+  Predict = async () => {
+    const predict = this.IsStream.value ? this.MessagePredictReplyStream : this.MessagePredictReply
+    await predict()
+
+  }
+  handleStream = async (response: any) => {
+    const reader = response.body.getReader();
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        // sse响应转码
+        const result = this.Uint8ArrayToString(value);
+        const messages = result.split('\n\n').filter((msg) => msg.trim() !== '');
+        const lastCustomerMessage = this.MessageHistoryList[this.MessageHistoryList.length - 1];
+        lastCustomerMessage.loading = false
+        messages.forEach((msg) => {
+          lastCustomerMessage.message += msg
+        });
+      }
+    } catch (error) {
+      return;
+    }
+  };
+
+  Uint8ArrayToString = (uint8Array: Uint8Array) => {
+    const decoder = new TextDecoder('utf-8');
+    return decoder.decode(uint8Array);
   }
 
 }
